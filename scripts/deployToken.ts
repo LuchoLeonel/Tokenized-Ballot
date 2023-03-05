@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import * as dotenv from "dotenv";
 import { MyToken__factory } from "../typechain-types";
+
 dotenv.config();
 
 async function main() {
@@ -9,7 +10,7 @@ async function main() {
   if (!amountToMint) throw new Error("Missing amount to mint");
   const convertedAmount = ethers.utils.parseEther(amountToMint);
 
-  const provider = ethers.provider;
+  const provider = new ethers.providers.InfuraProvider("goerli", process.env.INFURA_PRIVATE_KEY);
   const privateKey = process.env.PRIVATE_KEY;
   
   if (!privateKey || privateKey.length <= 0)
