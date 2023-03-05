@@ -10,9 +10,9 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 contract MyToken is ERC20, AccessControl, ERC20Permit, ERC20Votes {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    constructor() ERC20("MyToken", "MTK") ERC20Permit("MyToken") {
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(MINTER_ROLE, msg.sender);
+    constructor(address tokenized_ballot) ERC20("MyToken", "MTK") ERC20Permit("MyToken") {
+        _grantRole(DEFAULT_ADMIN_ROLE, tokenized_ballot);
+        _grantRole(MINTER_ROLE, tokenized_ballot);
     }
 
     function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
