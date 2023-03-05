@@ -1,19 +1,22 @@
-// SPDX-License-Identifier: GPL-3.0
+//SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.7.0 <0.9.0;
+
+
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 interface IMyToken {
     function getPastVotes(
         address account,
         uint256 blockNumber
     ) external view returns (uint256);
+    function mint(address to, uint256 amount) external;
 }
 
-contract Ballot {
+contract TokenizedBallot is Ownable {
     struct Proposal {
         bytes32 name;
         uint voteCount;
     }
-
     mapping(address => uint256) public votingPowerSpent;
     uint256 public targetBlockNumber;
     IMyToken public tokenContract;
@@ -31,6 +34,10 @@ contract Ballot {
         }
     }
 
+    function giveVotes(address to, uint256 amount) external onlyOwner {
+        tokenContract.mint(msg.sender, amount);
+    }
+
     function vote(uint proposal, uint256 amount) external {
         require(votingPower(msg.sender) >= amount);
         votingPowerSpent[msg.sender] += amount;
@@ -38,20 +45,24 @@ contract Ballot {
     }
 
     function votingPower(address account) public view returns (uint256) {
-        return tokenContract.getPastVotes(account, targetBlockNumber) - votingPowerSpent[account];
+        return
+            tokenContract.getPastVotes(account, targetBlockNumber) - 
+            votingPowerSpent[account];
     }
 
-    function winningProposal() public view returns (uint256 _winningProposal) {
+    function winningProposal() public view returns (uint256 winningProposal_) {
         uint256 winningVoteCount = 0;
-        for (uint p = 0; p < proposals.length; p++) {
-            if (proposals[p].voteCount > winningVoteCount) {
-                winningVoteCount = proposals[p].voteCount;
-                _winningProposal = p;
+        for (uint p = 0; p < proposals.length;) {
+            uint256 proposalVoteCount = proposals[p].voteCount;
+            if (proposalVoteCount > winningVoteCount) {
+                winningVoteCount = proposalVoteCount;
+                winningProposal_ = p;
             }
+            unchecked{ p++; }
         }
     }
 
-    function winnerName() external view returns (bytes32 _winnerName) {
-        _winnerName = proposals[winningProposal()].name;
+    function winnerName() external view returns (bytes32 winnerName_) {
+        winnerName_ = proposals[winningProposal()].name;
     }
 }
