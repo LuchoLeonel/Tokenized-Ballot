@@ -4,20 +4,13 @@ import { TokenizedBallot__factory } from "../typechain-types";
 dotenv.config();
 
 async function main() {
-  let addresses: string[] = [];
   const args = process.argv;
-
   const ballotAddress = args[2];
-  const walletAddressToCheck = args.slice(3);
+  const targetBlockNumber = args[3];
 
   if (!ballotAddress) throw new Error("Missing ballot address");
-  if (walletAddressToCheck.length <= 0) throw new Error("Missing address");
+  if (!targetBlockNumber) throw new Error("Missing ballot address");
   
-  walletAddressToCheck.forEach((arg, index) => {
-    console.log(`Address ${index + 1}: ${arg}`);
-    addresses.push(ethers.utils.getAddress(arg));
-  });
-
   const provider = new ethers.providers.InfuraProvider("goerli", process.env.INFURA_PRIVATE_KEY);
   const privateKey = process.env.PRIVATE_KEY;
   
@@ -27,23 +20,13 @@ async function main() {
   console.log(`Connected to wallet address ${wallet.address}`);
 
   const signer = wallet.connect(provider);
-  const balance = await signer.getBalance();
-  console.log(`Wallet balance: ${balance} Wei, ${ethers.utils.formatEther(balance)} eth`);
 
   const ballotContractFactory = new TokenizedBallot__factory(signer);
   const ballotContract = ballotContractFactory.attach(ballotAddress);
   
-  const targetBlockNumber = await ballotContract.targetBlockNumber();
-  console.log(`Target Block Number: ${targetBlockNumber}`);
-
-  await Promise.all(
-    addresses.map(async (address) => {
-      const votingPower = await ballotContract.votingPower(address);
-      console.log(
-        `Address: ${address} - Voting Power: ${votingPower}`
-      );
-    })
-  );
+  const changeTargetBlockNumberTx = await ballotContract.setTargetBlockNumber(targetBlockNumber);
+  await changeTargetBlockNumberTx.wait();
+  console.log(`New Target Block Number is: ${await ballotContract.targetBlockNumber()}`);
 }
 
 main().catch((e) => {
