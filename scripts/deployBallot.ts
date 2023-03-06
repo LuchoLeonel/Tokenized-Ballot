@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import * as dotenv from "dotenv";
 import { TokenizedBallot__factory } from "../typechain-types";
+import { exec } from 'child_process';
 dotenv.config();
 
 function convertStringArrayToBytes32(array: string[]) {
@@ -20,6 +21,8 @@ async function main() {
   if (!contractAddress) throw new Error("Missing contract address");
   if (!blockNumber) throw new Error("Missing block number");
   if (!proposals.length) throw new Error("Missing proposals");
+  console.log({proposals: proposals.map(proposal => ethers.utils.formatBytes32String(proposal))});
+  
 
   const provider = new ethers.providers.InfuraProvider("goerli", process.env.INFURA_PRIVATE_KEY);
   
@@ -47,6 +50,20 @@ async function main() {
   );
   const deployTxReceipt = await ballotContract.deployTransaction.wait();
   console.log(`The contract was deployed at the address ${ballotContract.address} at block ${deployTxReceipt.blockNumber}`);
+
+  const array = convertStringArrayToBytes32(proposals);
+  const command = `npx hardhat verify --network goerli ${ballotContract.address} ${array} ${contractAddress} ${blockNumber}`;
+  exec(command, (err, stdout, stderr) => {
+    if (err) {
+      console.log({err});
+      return;
+    }
+  
+    // the *entire* stdout and stderr (buffered)
+    console.log(`stdout: ${stdout}`);
+    console.log(`stderr: ${stderr}`);
+  });
+
 }
 
 main().catch((e) => {
