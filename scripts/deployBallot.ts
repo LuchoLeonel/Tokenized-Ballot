@@ -21,9 +21,7 @@ async function main() {
   if (!contractAddress) throw new Error("Missing contract address");
   if (!blockNumber) throw new Error("Missing block number");
   if (!proposals.length) throw new Error("Missing proposals");
-  console.log({proposals: proposals.map(proposal => ethers.utils.formatBytes32String(proposal))});
   
-
   const provider = new ethers.providers.InfuraProvider("goerli", process.env.INFURA_PRIVATE_KEY);
   
   const privateKey = process.env.PRIVATE_KEY;
@@ -41,6 +39,7 @@ async function main() {
   proposals.forEach((element, index) => {
     console.log(`Proposal N. ${index + 1}: ${element}`);
   });
+  console.log({proposals: proposals.map(proposal => ethers.utils.formatBytes32String(proposal))});
 
   const ballotContractFactory = new TokenizedBallot__factory(signer);
   const ballotContract = await ballotContractFactory.deploy(
@@ -50,20 +49,6 @@ async function main() {
   );
   const deployTxReceipt = await ballotContract.deployTransaction.wait();
   console.log(`The contract was deployed at the address ${ballotContract.address} at block ${deployTxReceipt.blockNumber}`);
-
-  const array = convertStringArrayToBytes32(proposals);
-  const command = `npx hardhat verify --network goerli ${ballotContract.address} ${array} ${contractAddress} ${blockNumber}`;
-  exec(command, (err, stdout, stderr) => {
-    if (err) {
-      console.log({err});
-      return;
-    }
-  
-    // the *entire* stdout and stderr (buffered)
-    console.log(`stdout: ${stdout}`);
-    console.log(`stderr: ${stderr}`);
-  });
-
 }
 
 main().catch((e) => {
