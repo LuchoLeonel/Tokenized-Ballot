@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import * as dotenv from "dotenv";
-import { Ballot__factory } from "../typechain-types";
+import { TokenizedBallot__factory } from "../typechain-types";
 dotenv.config();
 
 async function main() {
@@ -13,9 +13,9 @@ async function main() {
   if (!selectedProposal) throw new Error("Missing selected proposal");
   if (!amount) throw new Error("Missing amount to vote");
 
-  const convertedProposal = +selectedProposal;
-  const convertedAmount = ethers.utils.parseEther(amount);
-  const provider = ethers.provider;
+  //const convertedProposal = +selectedProposal;
+  //const convertedAmount = ethers.utils.parseEther(amount);
+  const provider = new ethers.providers.InfuraProvider("goerli", process.env.INFURA_PRIVATE_KEY);
 
   const privateKey = process.env.PRIVATE_KEY;
   
@@ -30,10 +30,10 @@ async function main() {
     `Wallet balance: ${balance} Wei, ${ethers.utils.formatEther(balance)} eth`
   );
 
-  const ballotContractFactory = new Ballot__factory(signer);
+  const ballotContractFactory = new TokenizedBallot__factory(signer);
   const ballotContract = ballotContractFactory.attach(ballotAddress);
   console.log(`Voted for proposal: ${selectedProposal}`);
-  const voted = await ballotContract.vote(convertedProposal, convertedAmount);
+  const voted = await ballotContract.vote(selectedProposal, amount);
   const votedTxReceipt = await voted.wait();
 }
 

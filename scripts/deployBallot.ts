@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import * as dotenv from "dotenv";
-import { Ballot__factory } from "../typechain-types";
+import { TokenizedBallot__factory } from "../typechain-types";
 dotenv.config();
 
 function convertStringArrayToBytes32(array: string[]) {
@@ -21,11 +21,12 @@ async function main() {
   if (!blockNumber) throw new Error("Missing block number");
   if (!proposals.length) throw new Error("Missing proposals");
 
-  const provider = ethers.provider;
-
+  const provider = new ethers.providers.InfuraProvider("goerli", process.env.INFURA_PRIVATE_KEY);
+  
   const privateKey = process.env.PRIVATE_KEY;
   if (!privateKey || privateKey.length <= 0)
     throw new Error("Missing private key, please check .env file");
+  
   const wallet = new ethers.Wallet(privateKey);
   console.log(`Connected to wallet address ${wallet.address}`);
   const signer = wallet.connect(provider);
@@ -38,14 +39,14 @@ async function main() {
     console.log(`Proposal N. ${index + 1}: ${element}`);
   });
 
-  const ballotContractFactory = new Ballot__factory(signer);
+  const ballotContractFactory = new TokenizedBallot__factory(signer);
   const ballotContract = await ballotContractFactory.deploy(
     proposals.map(proposal => ethers.utils.formatBytes32String(proposal)),
     contractAddress,
     blockNumber
   );
   const deployTxReceipt = await ballotContract.deployTransaction.wait();
-  console.log(`The contract was deployed at the address ${ballotContract.address}`);
+  console.log(`The contract was deployed at the address ${ballotContract.address} at block ${deployTxReceipt.blockNumber}`);
 }
 
 main().catch((e) => {

@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { ethers, run } from "hardhat";
 import * as dotenv from "dotenv";
 import { MyToken__factory } from "../typechain-types";
 
@@ -6,9 +6,6 @@ dotenv.config();
 
 async function main() {
   const args = process.argv;
-  const amountToMint = args[2];
-  if (!amountToMint) throw new Error("Missing amount to mint");
-  const convertedAmount = ethers.utils.parseEther(amountToMint);
 
   const provider = new ethers.providers.InfuraProvider("goerli", process.env.INFURA_PRIVATE_KEY);
   const privateKey = process.env.PRIVATE_KEY;
@@ -33,6 +30,8 @@ async function main() {
   let totalSupply = await tokenContract.totalSupply();
   console.log(`The contract name is ${contractName} \nThe contract symbol is ${contractSymbol} \nThe total supply is ${totalSupply} decimal units \nThe decimals units is ${contractDecimals}`);
 
+
+  /*
   console.log("Minting token");
   const mintTx = await tokenContract.mint(signer.address,convertedAmount);
   const mintTxReceipt = await mintTx.wait();
@@ -48,6 +47,7 @@ async function main() {
 
   const votingPower = await tokenContract.getVotes(signer.address);
   console.log(`Voting power from account: ${ethers.utils.formatEther(votingPower)} voting power units`);
+  */
 }
 
 main().catch((err) => {

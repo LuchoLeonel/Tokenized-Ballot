@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import * as dotenv from "dotenv";
-import { Ballot__factory } from "../typechain-types";
+import { TokenizedBallot__factory } from "../typechain-types";
 dotenv.config();
 
 async function main() {
@@ -30,12 +30,12 @@ async function main() {
   const balance = await signer.getBalance();
   console.log(`Wallet balance: ${balance} Wei, ${ethers.utils.formatEther(balance)} eth`);
 
-  const ballotContractFactory = new Ballot__factory(signer);
+  const ballotContractFactory = new TokenizedBallot__factory(signer);
   const ballotContract = ballotContractFactory.attach(ballotAddress);
-  
+  /*
   const targetBlockNumber = await ballotContract.targetBlockNumber();
   console.log(`Target Block Number: ${targetBlockNumber}`);
-
+*/
   await Promise.all(
     addresses.map(async (address) => {
       const votingPower = await ballotContract.votingPower(address);

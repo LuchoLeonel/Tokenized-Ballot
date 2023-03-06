@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.7.0 <0.9.0;
 
 
@@ -35,7 +35,11 @@ contract TokenizedBallot is Ownable {
     }
 
     function giveVotes(address to, uint256 amount) external onlyOwner {
-        tokenContract.mint(msg.sender, amount);
+        tokenContract.mint(to, amount);
+    }
+
+    function setTargetBlockNumber(uint256 _targetBlockNumber) external onlyOwner {
+        targetBlockNumber = _targetBlockNumber;
     }
 
     function vote(uint proposal, uint256 amount) external {

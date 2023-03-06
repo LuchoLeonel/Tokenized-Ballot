@@ -5,12 +5,12 @@ dotenv.config();
 
 async function main() {
   const args = process.argv;
-  const contractAddress = args[2];
+  const tokenAddress = args[2];
   const delegatedAddress = args[3];
-  if (!contractAddress) throw new Error("Missing contract address");
+  if (!tokenAddress) throw new Error("Missing contract address");
   if (!delegatedAddress) throw new Error("Missing address to delegate voting power");
 
-  const provider = ethers.provider;
+  const provider = new ethers.providers.InfuraProvider("goerli", process.env.INFURA_PRIVATE_KEY);
 
   const privateKey = process.env.PRIVATE_KEY;
   if (!privateKey || privateKey.length <= 0) throw new Error("Missing private key, check .env file");
@@ -24,7 +24,7 @@ async function main() {
   );
 
   const myTokenContractFactory = new MyToken__factory(signer);
-  const tokenContract = myTokenContractFactory.attach(contractAddress);
+  const tokenContract = myTokenContractFactory.attach(tokenAddress);
 
   const contractSymbol = await tokenContract.symbol();
   const tokenBalance = await tokenContract.balanceOf(signer.address);
