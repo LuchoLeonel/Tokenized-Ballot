@@ -4,19 +4,14 @@ import { TokenizedBallot__factory } from "../typechain-types";
 dotenv.config();
 
 async function main() {
+  let addresses: string[] = [];
   const args = process.argv;
+
   const ballotAddress = args[2];
-  const selectedProposal = args[3];
-  const amount = args[4];
 
-  if (!ballotAddress) throw new Error("Missing Ballot address");
-  if (!selectedProposal) throw new Error("Missing selected proposal");
-  if (!amount) throw new Error("Missing amount to vote");
+  if (!ballotAddress) throw new Error("Missing ballot address");
 
-  //const convertedProposal = +selectedProposal;
-  //const convertedAmount = ethers.utils.parseEther(amount);
   const provider = new ethers.providers.InfuraProvider("goerli", process.env.INFURA_PRIVATE_KEY);
-
   const privateKey = process.env.PRIVATE_KEY;
   
   if (!privateKey || privateKey.length <= 0)
@@ -26,18 +21,17 @@ async function main() {
 
   const signer = wallet.connect(provider);
   const balance = await signer.getBalance();
-  console.log(
-    `Wallet balance: ${balance} Wei, ${ethers.utils.formatEther(balance)} eth`
-  );
+  console.log(`Wallet balance: ${balance} Wei, ${ethers.utils.formatEther(balance)} eth`);
 
   const ballotContractFactory = new TokenizedBallot__factory(signer);
   const ballotContract = ballotContractFactory.attach(ballotAddress);
-  const voted = await ballotContract.vote(selectedProposal, amount);
-  const votedTxReceipt = await voted.wait();
-  console.log(`Voted for proposal: ${selectedProposal} at block ${votedTxReceipt.blockNumber}`);
+  
+  const winnerProposal = await ballotContract.winnerName();
+  console.log(`Winner proposal is: ${ethers.utils.parseBytes32String(winnerProposal)}`);
+
 }
 
-main().catch((error) => {
-  console.error(error);
+main().catch((e) => {
+  console.error(e);
   process.exitCode = 1;
 });
