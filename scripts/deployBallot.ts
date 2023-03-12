@@ -15,11 +15,9 @@ function convertStringArrayToBytes32(array: string[]) {
 async function main() {
   const args = process.argv;
   const contractAddress = args[2];
-  const blockNumber = parseInt(args[3]);
-  const proposals = args.slice(4);
+  const proposals = args.slice(3);
   
   if (!contractAddress) throw new Error("Missing contract address");
-  if (!blockNumber) throw new Error("Missing block number");
   if (!proposals.length) throw new Error("Missing proposals");
   
   const provider = new ethers.providers.InfuraProvider("goerli", process.env.INFURA_PRIVATE_KEY);
@@ -44,8 +42,7 @@ async function main() {
   const ballotContractFactory = new TokenizedBallot__factory(signer);
   const ballotContract = await ballotContractFactory.deploy(
     proposals.map(proposal => ethers.utils.formatBytes32String(proposal)),
-    contractAddress,
-    blockNumber
+    contractAddress
   );
   const deployTxReceipt = await ballotContract.deployTransaction.wait();
   console.log(`The contract was deployed at the address ${ballotContract.address} at block ${deployTxReceipt.blockNumber}`);

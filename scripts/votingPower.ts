@@ -40,7 +40,7 @@ async function main() {
     addresses.map(async (address) => {
       const votingPower = await ballotContract.votingPower(address);
       console.log(
-        `Address: ${address} - Voting Power: ${votingPower}`
+        `Address: ${address} - Voting Power: ${ethers.utils.formatEther(votingPower)}`
       );
     })
   );

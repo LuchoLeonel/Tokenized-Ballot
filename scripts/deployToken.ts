@@ -29,25 +29,6 @@ async function main() {
   const contractDecimals = await tokenContract.decimals();
   let totalSupply = await tokenContract.totalSupply();
   console.log(`The contract name is ${contractName} \nThe contract symbol is ${contractSymbol} \nThe total supply is ${totalSupply} decimal units \nThe decimals units is ${contractDecimals}`);
-
-
-  /*
-  console.log("Minting token");
-  const mintTx = await tokenContract.mint(signer.address,convertedAmount);
-  const mintTxReceipt = await mintTx.wait();
-  totalSupply = await tokenContract.totalSupply();
-  console.log(`The mint transaction was completed in the block ${mintTxReceipt.blockNumber} \nThe total supply now is ${totalSupply} decimal units`);
-
-  console.log("Self delegated as deployer");
-  const delegateTx = await tokenContract
-    .connect(signer)
-    .delegate(signer.address);
-  const delegateTxReceipt = await delegateTx.wait();
-  console.log(`Tokens delegated at block ${delegateTxReceipt.blockNumber}`);
-
-  const votingPower = await tokenContract.getVotes(signer.address);
-  console.log(`Voting power from account: ${ethers.utils.formatEther(votingPower)} voting power units`);
-  */
 }
 
 main().catch((err) => {

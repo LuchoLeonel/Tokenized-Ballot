@@ -18,28 +18,21 @@ contract TokenizedBallot is Ownable {
         uint voteCount;
     }
     mapping(address => uint256) public votingPowerSpent;
-    uint256 public targetBlockNumber;
     IMyToken public tokenContract;
     Proposal[] public proposals;
 
     constructor(
         bytes32[] memory proposalNames,
-        address _tokenContract,
-        uint256 _targetBlockNumber
+        address _tokenContract
     ) {
         tokenContract = IMyToken(_tokenContract);
-        targetBlockNumber = _targetBlockNumber;
         for (uint i = 0; i < proposalNames.length; i++) {
             proposals.push(Proposal({name: proposalNames[i], voteCount: 0}));
         }
     }
 
-    function giveVotes(address to, uint256 amount) external onlyOwner {
+    function giveVotes(address to, uint256 amount) external {
         tokenContract.mint(to, amount);
-    }
-
-    function setTargetBlockNumber(uint256 _targetBlockNumber) external onlyOwner {
-        targetBlockNumber = _targetBlockNumber;
     }
 
     function vote(uint proposal, uint256 amount) external {
@@ -50,7 +43,7 @@ contract TokenizedBallot is Ownable {
 
     function votingPower(address account) public view returns (uint256) {
         return
-            tokenContract.getPastVotes(account, targetBlockNumber) - 
+            tokenContract.getPastVotes(account, block.number - 1) - 
             votingPowerSpent[account];
     }
 

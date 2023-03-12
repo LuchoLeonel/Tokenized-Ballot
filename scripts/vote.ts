@@ -13,8 +13,7 @@ async function main() {
   if (!selectedProposal) throw new Error("Missing selected proposal");
   if (!amount) throw new Error("Missing amount to vote");
 
-  //const convertedProposal = +selectedProposal;
-  //const convertedAmount = ethers.utils.parseEther(amount);
+  const parsedAmount = ethers.utils.parseEther(amount);
   const provider = new ethers.providers.InfuraProvider("goerli", process.env.INFURA_PRIVATE_KEY);
 
   const privateKey = process.env.PRIVATE_KEY;
@@ -32,7 +31,7 @@ async function main() {
 
   const ballotContractFactory = new TokenizedBallot__factory(signer);
   const ballotContract = ballotContractFactory.attach(ballotAddress);
-  const voted = await ballotContract.vote(selectedProposal, amount);
+  const voted = await ballotContract.vote(selectedProposal, parsedAmount);
   const votedTxReceipt = await voted.wait();
   console.log(`Voted for proposal: ${selectedProposal} at block ${votedTxReceipt.blockNumber}`);
 }

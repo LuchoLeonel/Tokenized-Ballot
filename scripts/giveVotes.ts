@@ -26,7 +26,8 @@ async function main() {
   const tokenizedBallotContractFactory = new TokenizedBallot__factory(signer);
   const tokenizedBallotContract = tokenizedBallotContractFactory.attach(tokenizedBallotAddress);
 
-  const giveVotesTx = await tokenizedBallotContract.giveVotes(destinationAddress, amount);
+  const parsedAmount = ethers.utils.parseEther(amount);
+  const giveVotesTx = await tokenizedBallotContract.giveVotes(destinationAddress, parsedAmount);
   await giveVotesTx.wait();
 
   const tokenContractAddress = await tokenizedBallotContract.tokenContract();
@@ -34,7 +35,7 @@ async function main() {
   const tokenContract = tokenContractFactory.attach(tokenContractAddress);
 
   const balance = await tokenContract.balanceOf(destinationAddress);
-  console.log(`${destinationAddress} now has ${balance} tokens`);
+  console.log(`${destinationAddress} now has ${ethers.utils.formatEther(balance)} tokens`);
 }
 
 main().catch((error) => {
